@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GG Script Generator - AvelineID</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --hacker-green: #00ff00;
+            --hacker-green-dark: #008800;
+            --hacker-green-light: #33ff33;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #050505;
+            --terminal-bg: rgba(0, 30, 0, 0.3);
+            --menu-bg: rgba(0, 40, 0, 0.2);
+            --border-color: #005500;
+            --text-color: #e0e0e0;
+            --panel-bg: rgba(0, 20, 0, 0.2);
+            --success-color: #00cc44;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            padding: 15px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 80, 0, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 100, 0, 0.1) 0%, transparent 20%);
+        }
+        
+        .binary-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .binary-char {
+            position: absolute;
+            color: rgba(0, 255, 0, 0.1);
+            font-size: 16px;
+            user-select: none;
+            animation: fall linear infinite;
+        }
+        
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            background: var(--darker-bg);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 80, 0, 0.3);
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--hacker-green);
+            position: relative;
+            animation: flicker 3s infinite;
+            margin-bottom: 10px;
+            color: var(--hacker-green);
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .brand a {
+            color: var(--hacker-green);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .brand a:hover {
+            color: var(--hacker-green-light);
+            text-shadow: 0 0 8px var(--hacker-green);
+        }
+        
+        .panels-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .panels-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .panel {
+            background-color: var(--terminal-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .panel::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(rgba(0, 40, 0, 0.1) 50%, rgba(0, 20, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .panel-title {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: var(--hacker-green);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .panel-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        .config-section {
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed var(--border-color);
+            cursor: pointer;
+        }
+        
+        .section-title h3 {
+            color: var(--hacker-green);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--hacker-green);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: rgba(0, 20, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-family: 'Courier New', monospace;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--hacker-green);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        textarea {
+            min-height: 250px;
+            resize: vertical;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, rgba(0, 80, 0, 0.7), rgba(0, 40, 0, 0.9));
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 20px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+        }
+        
+        button:hover {
+            background: linear-gradient(to bottom, rgba(0, 100, 0, 0.8), rgba(0, 60, 0, 1));
+            box-shadow: 0 0 15px var(--hacker-green);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to bottom, rgba(0, 100, 0, 0.7), rgba(0, 60, 0, 0.9));
+        }
+        
+        .btn-success {
+            background: linear-gradient(to bottom, rgba(0, 100, 50, 0.7), rgba(0, 60, 30, 0.9));
+        }
+        
+        .hack-item {
+            background-color: var(--panel-bg);
+            padding: 18px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            position: relative;
+        }
+        
+        .hack-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        @media (min-width: 480px) {
+            .hack-row {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+        
+        .menu-preview {
+            background-color: var(--panel-bg);
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            min-height: 150px;
+        }
+        
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .menu-item {
+            padding: 12px;
+            border: 1px dashed var(--border-color);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(0, 60, 0, 0.3);
+            border-style: solid;
+        }
+        
+        .menu-item.active {
+            background-color: rgba(0, 100, 0, 0.3);
+            border-style: solid;
+            border-color: var(--hacker-green);
+            color: var(--hacker-green);
+        }
+        
+        .menu-item i {
+            font-size: 1.2rem;
+        }
+        
+        .success {
+            color: var(--success-color);
+            background-color: rgba(0, 60, 0, 0.3);
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            border-radius: 5px;
+            border: 1px solid var(--success-color);
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .feature-badge {
+            background: linear-gradient(to right, rgba(0, 100, 0, 0.5), rgba(0, 60, 0, 0.8));
+            color: var(--hacker-green-light);
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 25px 10px;
+            margin-top: 30px;
+            border-top: 1px solid var(--border-color);
+            color: var(--hacker-green);
+            font-size: 0.9rem;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 10px rgba(0, 80, 0, 0.5);
+        }
+        
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.5; }
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .mobile-warning {
+            display: none;
+            background-color: rgba(200, 0, 0, 0.2);
+            color: #ff5555;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ff5555;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        @media (max-width: 480px) {
+            .mobile-warning {
+                display: block;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+        }
+        
+        /* New styles for the subscribe modal */
+        #subscribe-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s;
+        }
+        
+        #subscribe-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: var(--darker-bg);
+            border: 1px solid var(--hacker-green);
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+            transform: translateY(20px);
+            transition: transform 0.5s;
+        }
+        
+        #subscribe-modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            color: var(--hacker-green);
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px var(--hacker-green);
+            margin-bottom: 10px;
+        }
+        
+        .modal-body {
+            margin-bottom: 25px;
+        }
+        
+        .modal-body p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .modal-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .btn-subscribe {
+            background: linear-gradient(to bottom, rgba(200, 0, 0, 0.7), rgba(150, 0, 0, 0.9));
+            color: white;
+            padding: 14px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            border: 1px solid #ff5555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-subscribe:hover {
+            background: linear-gradient(to bottom, rgba(255, 0, 0, 0.8), rgba(200, 0, 0, 1));
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .btn-close-modal {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-close-modal:hover {
+            background: rgba(0, 60, 0, 0.3);
+            border-color: var(--hacker-green);
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .footer-links a {
+            color: var(--hacker-green);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--hacker-green-light);
+            text-shadow: 0 0 8px var(--hacker-green);
+        }
+        
+        .footer-links .divider {
+            color: var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Subscribe Modal -->
+    <div id="subscribe-modal" class="active">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fab fa-youtube"></i> Subscribe to AvelineID</h2>
+            </div>
+            <div class="modal-body">
+                <p>Enjoying this GG Script Generator? Please subscribe to my YouTube channel for more modding tools, tutorials, and updates!</p>
+                <p>Your subscription helps me create more free tools like this one.</p>
+            </div>
+            <div class="modal-footer">
+                <a href="https://www.youtube.com/@AvelineID" target="_blank" class="btn-subscribe">
+                    <i class="fab fa-youtube"></i> Subscribe Now
+                </a>
+                <button class="btn-close-modal" id="close-modal">Continue to Tool</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="binary-rain" id="binary-rain"></div>
+    
+    <div class="mobile-warning">
+        <i class="fas fa-exclamation-triangle"></i> For best experience, use landscape mode on mobile devices
+    </div>
+    
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1><i class="fas fa-terminal"></i> GG SCRIPT GENERATOR</h1>
+                <p>Create Game Guardian scripts with hacker-style menu interfaces</p>
+                <div class="brand">
+                    <a href="https://www.youtube.com/@AvelineID" target="_blank">
+                        <i class="fab fa-youtube"></i> YouTube.com/@AvelineID
+                    </a>
+                </div>
+            </div>
+        </header>
+        
+        <div class="panels-container">
+            <div class="panel config-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-cogs"></i> CONFIG TERMINAL
+                    </div>
+                    <div class="panel-status">
+                        ONLINE <span class="blink">_</span>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <div class="section-title" onclick="toggleSection('game-config')">
+                        <h3><i class="fas fa-gamepad"></i> GAME CONFIGURATION</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div id="game-config">
+                        <div class="form-group">
+                            <label for="apkName">APK NAME:</label>
+                            <input type="text" id="apkName" value="com.example.game" placeholder="Enter APK name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="libName">LIBRARY NAME: <span class="feature-badge">Advanced</span></label>
+                            <input type="text" id="libName" value="libil2cpp.so" placeholder="Enter library name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="author">AUTHOR:</label>
+                            <input type="text" id="author" value="AvelineID" placeholder="Your name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="version">SCRIPT VERSION:</label>
+                            <input type="text" id="version" value="1.0" placeholder="Script version">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <div class="section-title" onclick="toggleSection('hack-builder')">
+                        <h3><i class="fas fa-code"></i> HACK MENU BUILDER</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div id="hack-builder">
+                        <div id="hacks-container">
+                            <div class="hack-item">
+                                <div class="hack-row">
+                                    <div>
+                                        <label>MENU TITLE</label>
+                                        <input type="text" class="menu-title" value="Free Shop" placeholder="Hack name">
+                                    </div>
+                                    <div>
+                                        <label>METHOD NAME</label>
+                                        <input type="text" class="method-name" value="get_IsIAP" placeholder="Method name">
+                                    </div>
+                                </div>
+                                <div class="hack-row">
+                                    <div>
+                                        <label>CLASS NAME</label>
+                                        <input type="text" class="class-name" value="Currency" placeholder="Class name">
+                                    </div>
+                                    <div>
+                                        <label>VALUE TYPE</label>
+                                        <select class="value-type">
+                                            <option value="bool">Boolean</option>
+                                            <option value="int">Integer</option>
+                                            <option value="float">Float</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label>VALUE</label>
+                                        <input type="text" class="hack-value" value="false" placeholder="Hack value">
+                                    </div>
+                                </div>
+                                <button class="remove-hack">
+                                    <i class="fas fa-trash-alt"></i> REMOVE HACK
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button id="add-hack">
+                            <i class="fas fa-plus-circle"></i> ADD HACK
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <div class="section-title" onclick="toggleSection('menu-preview-section')">
+                        <h3><i class="fas fa-eye"></i> MENU PREVIEW</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div id="menu-preview-section">
+                        <div class="menu-preview">
+                            <div class="menu-items" id="menu-items">
+                                <div class="menu-item active">
+                                    <i class="fas fa-shopping-cart"></i> Free Shop
+                                </div>
+                                <div class="menu-item">
+                                    <i class="fas fa-running"></i> Unlimited Jump
+                                </div>
+                                <div class="menu-item">
+                                    <i class="fas fa-shield-alt"></i> God Mode
+                                </div>
+                                <div class="menu-item">
+                                    <i class="fas fa-bolt"></i> Speed Hack
+                                </div>
+                                <div class="menu-item">
+                                    <i class="fas fa-power-off"></i> EXIT
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button id="generate-btn" class="btn-primary">
+                        <i class="fas fa-cogs"></i> GENERATE SCRIPT
+                    </button>
+                    <button id="reset-btn">
+                        <i class="fas fa-redo"></i> RESET CONFIG
+                    </button>
+                    <button id="download-btn" class="btn-success">
+                        <i class="fas fa-download"></i> DOWNLOAD SCRIPT
+                    </button>
+                </div>
+                
+                <div class="success" id="success-message">
+                    <i class="fas fa-check-circle"></i> SCRIPT GENERATED SUCCESSFULLY!
+                </div>
+            </div>
+            
+            <div class="panel script-output">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <i class="fas fa-file-code"></i> SCRIPT OUTPUT
+                    </div>
+                    <div class="panel-status">
+                        READY <span class="blink">_</span>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <div class="section-title" onclick="toggleSection('script-output')">
+                        <h3><i class="fas fa-code"></i> GENERATED SCRIPT</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div id="script-output">
+                        <div class="form-group">
+                            <textarea id="generated-script" readonly>-- Generated script will appear here
+-- Configure your hacks and press GENERATE
+
+-- YouTube.com/@AvelineID</textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="config-section">
+                    <div class="section-title" onclick="toggleSection('instructions')">
+                        <h3><i class="fas fa-info-circle"></i> INSTRUCTIONS</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div id="instructions">
+                        <div class="form-group">
+                            <ol>
+                                <li>Fill in the game configuration details</li>
+                                <li>Add your hacks with class/method names</li>
+                                <li>Click GENERATE SCRIPT to create your GG script</li>
+                                <li>Copy or DOWNLOAD the generated script</li>
+                                <li>Run in Game Guardian with the target game</li>
+                                <li>Subscribe to <a href="https://www.youtube.com/@AvelineID" style="color: var(--hacker-green);">AvelineID on YouTube</a></li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <h3>SCRIPT FEATURES</h3>
+                    <ul>
+                        <li><i class="fas fa-check" style="color: var(--hacker-green);"></i> Automatic library detection</li>
+                        <li><i class="fas fa-check" style="color: var(--hacker-green);"></i> Offset search and caching</li>
+                        <li><i class="fas fa-check" style="color: var(--hacker-green);"></i> ARM assembly patching</li>
+                        <li><i class="fas fa-check" style="color: var(--hacker-green);"></i> Toggleable hacks</li>
+                        <li><i class="fas fa-check" style="color: var(--hacker-green);"></i> Multi-game support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Created for YouTube.com/@AvelineID | Game Guardian Script Generator v2.0</p>
+            <p>© 2025 AvelineID - All rights reserved</p>
+            
+            <!-- Added links section -->
+            <div class="footer-links">
+                <a href="https://avilane.github.io/Aveline/" target="_blank">
+                    <i class="fas fa-download"></i> Download Scripts & Mods
+                </a>
+                <span class="divider">|</span>
+                <a href="https://youtu.be/Cgvaaj_k44Q?si=RdPbtABttmf9ad6E" target="_blank">
+                    <i class="fab fa-youtube"></i> Example Script
+                </a>
+                <span class="divider">|</span>
+                <a href="https://avilane.github.io/AvelineGG/" target="_blank">
+                    <i class="fas fa-cogs"></i> Auto Script Generator V1
+                </a>
+                <span class="divider">|</span>
+                <a href="https://t.me/AvelineID" target="_blank">
+                    <i class="fab fa-telegram"></i> Telegram: @AvelineID
+                </a>
+            </div>
+        </footer>
+    </div>
+    
+    <div class="theme-toggle" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <script>
+        // Create falling binary code effect
+        function createBinaryEffect() {
+            const container = document.getElementById('binary-rain');
+            const chars = '01';
+            const columns = Math.floor(window.innerWidth / 20);
+            
+            for (let i = 0; i < columns; i++) {
+                const char = document.createElement('div');
+                char.className = 'binary-char';
+                char.textContent = chars[Math.floor(Math.random() * chars.length)];
+                char.style.left = `${Math.random() * 100}%`;
+                char.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                char.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(char);
+                
+                // Remove char after animation completes
+                setTimeout(() => {
+                    char.remove();
+                }, parseFloat(char.style.animationDuration) * 1000 + 1000);
+            }
+            
+            // Keep creating new characters
+            setTimeout(createBinaryEffect, 300);
+        }
+        
+        // Toggle section visibility
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Add a new hack item
+        function addHackItem() {
+            const container = document.getElementById('hacks-container');
+            const hackCount = container.querySelectorAll('.hack-item').length + 1;
+            
+            const hackHTML = `
+                <div class="hack-item">
+                    <div class="hack-row">
+                        <div>
+                            <label>MENU TITLE</label>
+                            <input type="text" class="menu-title" value="Hack ${hackCount}" placeholder="Hack name">
+                        </div>
+                        <div>
+                            <label>METHOD NAME</label>
+                            <input type="text" class="method-name" value="get_Method${hackCount}" placeholder="Method name">
+                        </div>
+                    </div>
+                    <div class="hack-row">
+                        <div>
+                            <label>CLASS NAME</label>
+                            <input type="text" class="class-name" value="Class${hackCount}" placeholder="Class name">
+                        </div>
+                        <div>
+                            <label>VALUE TYPE</label>
+                            <select class="value-type">
+                                <option value="bool">Boolean</option>
+                                <option value="int">Integer</option>
+                                <option value="float">Float</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>VALUE</label>
+                            <input type="text" class="hack-value" value="${hackCount % 2 === 0 ? '9999' : 'false'}" placeholder="Hack value">
+                        </div>
+                    </div>
+                    <button class="remove-hack">
+                        <i class="fas fa-trash-alt"></i> REMOVE HACK
+                    </button>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', hackHTML);
+            
+            // Update menu preview
+            updateMenuPreview();
+        }
+        
+        // Update the menu preview
+        function updateMenuPreview() {
+            const menuItems = document.getElementById('menu-items');
+            menuItems.innerHTML = '';
+            
+            const hackItems = document.querySelectorAll('.hack-item');
+            const icons = ['fa-shopping-cart', 'fa-running', 'fa-shield-alt', 'fa-bolt', 'fa-coins', 'fa-infinity', 'fa-heart', 'fa-bomb'];
+            
+            hackItems.forEach((item, index) => {
+                const title = item.querySelector('.menu-title').value || 'Untitled Hack';
+                const icon = icons[index % icons.length] || 'fa-code';
+                
+                const menuItem = document.createElement('div');
+                menuItem.className = 'menu-item';
+                menuItem.innerHTML = `<i class="fas ${icon}"></i> ${title}`;
+                menuItems.appendChild(menuItem);
+            });
+            
+            // Add EXIT option
+            const exitItem = document.createElement('div');
+            exitItem.className = 'menu-item';
+            exitItem.innerHTML = '<i class="fas fa-power-off"></i> EXIT';
+            menuItems.appendChild(exitItem);
+            
+            // Activate first item
+            if (menuItems.firstChild) {
+                menuItems.firstChild.classList.add('active');
+            }
+        }
+        
+        // Generate the Game Guardian script
+        function generateScript() {
+            const apkName = document.getElementById('apkName').value || 'com.example.game';
+            const libName = document.getElementById('libName').value || 'libil2cpp.so';
+            const author = document.getElementById('author').value || 'AvelineID';
+            const version = document.getElementById('version').value || '1.0';
+            
+            const hackItems = document.querySelectorAll('.hack-item');
+            const hacks = [];
+            
+            // Collect hack data
+            hackItems.forEach(item => {
+                const title = item.querySelector('.menu-title').value || 'Untitled Hack';
+                const method = item.querySelector('.method-name').value || 'get_Method';
+                const className = item.querySelector('.class-name').value || 'ClassName';
+                const valueType = item.querySelector('.value-type').value;
+                const value = item.querySelector('.hack-value').value || 'false';
+                
+                hacks.push({
+                    title,
+                    method,
+                    className,
+                    valueType,
+                    value
+                });
+            });
+            
+            // Start building the script
+            let script = `-- Game Guardian Script
+-- Generated by GG Script Generator
+-- YouTube.com/@AvelineID
+-- 
+-- Game: ${apkName}
+-- Library: ${libName}
+-- Author: ${author}
+-- Version: ${version}
+-- ${new Date().toLocaleString()}
+
+-- Set Your Libname here
+local libNameSo = "${libName}"  -- Define the library name
+local info = gg.getTargetInfo() -- Get information about the target app
+local APK = info.label    -- Get APK name
+
+-- [LIBRARY SEARCH CODE] --
+-- Library search code from template goes here
+-- This section handles finding the game library in memory
+
+-- [OFFSET SEARCH CODE] --
+-- This section searches for method offsets
+local Search = {
+`;
+
+            // Add search entries
+            hacks.forEach((hack, index) => {
+                script += `    [${index + 1}] = {
+        class = "${hack.className}",  -- public class ${hack.className}
+        method = "${hack.method}" -- public ${hack.valueType === 'bool' ? 'bool' : hack.valueType} ${hack.method}()
+    }${index < hacks.length - 1 ? ',' : ''}
+`;
+            });
+
+            script += `}
+
+-- [HACK FUNCTIONS] --
+-- Functions for each hack
+`;
+
+            // Add hack functions
+            hacks.forEach((hack, index) => {
+                const funcName = hack.method.replace(/[^a-zA-Z0-9]/g, '_');
+                
+                script += `
+-- ${hack.title}
+function ${funcName}_ON()
+    if check("${hack.method}") then
+        RecordOriginalValue(${hack.method})
+        injectAssembly(${hack.method}, ${hack.value})
+        gg.toast("${hack.title} ACTIVATED")
+    end
+    return true
+end
+
+function ${funcName}_OFF()
+    RevertValue(${hack.method})
+    gg.toast("${hack.title} DEACTIVATED")
+    return nil
+end
+`;
+            });
+
+            // Add menu configuration
+            script += `
+-- Main Menu --
+menuList = {
+`;
+
+            hacks.forEach(hack => {
+                script += `    "${hack.title}", -- ${hack.method}\n`;
+            });
+
+            script += `    "EXIT" -- Exit the script
+}
+
+checkList = {
+`;
+
+            hacks.forEach(() => {
+                script += `    nil,\n`;
+            });
+
+            script += `    nil -- EXIT
+}
+
+-- Menu Function
+function menu()
+    tsu = gg.multiChoice(menuList, checkList, "━━━━[ " .. APK .. " ]━━━━\\nYouTube.com/@AvelineID")
+    if tsu == nil then return end
+`;
+
+            // Add menu handlers
+            hacks.forEach((hack, index) => {
+                const funcName = hack.method.replace(/[^a-zA-Z0-9]/g, '_');
+                
+                script += `
+    -- ${hack.title}
+    if tsu[${index + 1}] ~= checkList[${index + 1}] then
+        if tsu[${index + 1}] == true then
+            checkList[${index + 1}] = ${funcName}_ON()
+        else
+            checkList[${index + 1}] = ${funcName}_OFF()
+        end
+    end
+`;
+            });
+
+            // Add EXIT handler
+            script += `
+    -- EXIT option
+    if tsu[${hacks.length + 1}] == true then
+        gg.toast("Exiting script...")
+        os.exit()
+    end
+end
+
+-- [REST OF TEMPLATE CODE] --
+-- This section includes the rest of the template functionality
+-- including memory search, offset handling, and menu loop
+
+while true do
+    if gg.isVisible(true) then
+        gg.setVisible(false)
+        menu()
+    end
+    gg.sleep(100)
+end
+
+--[[
+    YouTube.com/@AvelineID
+    Thanks for using this script!
+]]`;
+
+            // Display the generated script
+            document.getElementById('generated-script').value = script;
+            
+            // Show success message
+            const successMsg = document.getElementById('success-message');
+            successMsg.style.display = 'block';
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Reset configuration
+        function resetConfig() {
+            document.getElementById('apkName').value = 'com.example.game';
+            document.getElementById('libName').value = 'libil2cpp.so';
+            document.getElementById('author').value = 'AvelineID';
+            document.getElementById('version').value = '1.0';
+            
+            const container = document.getElementById('hacks-container');
+            container.innerHTML = '';
+            
+            // Add one default hack
+            addHackItem();
+            
+            document.getElementById('generated-script').value = '-- Generated script will appear here\n-- Configure your hacks and press GENERATE\n\n-- YouTube.com/@AvelineID';
+        }
+        
+        // Download the script
+        function downloadScript() {
+            const script = document.getElementById('generated-script').value;
+            if (!script || script.includes('-- Generated script will appear here')) {
+                alert('Please generate a script first!');
+                return;
+            }
+            
+            const apkName = document.getElementById('apkName').value || 'game';
+            const filename = `${apkName}_GG_Script.lua`;
+            
+            const blob = new Blob([script], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
+        
+        // Close subscribe modal
+        function closeSubscribeModal() {
+            document.getElementById('subscribe-modal').classList.remove('active');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            createBinaryEffect();
+            
+            // Add hack button event
+            document.getElementById('add-hack').addEventListener('click', addHackItem);
+            
+            // Generate button event
+            document.getElementById('generate-btn').addEventListener('click', generateScript);
+            
+            // Reset button event
+            document.getElementById('reset-btn').addEventListener('click', resetConfig);
+            
+            // Download button event
+            document.getElementById('download-btn').addEventListener('click', downloadScript);
+            
+            // Delegate remove hack events
+            document.getElementById('hacks-container').addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-hack')) {
+                    const hackItem = e.target.closest('.hack-item');
+                    if (document.querySelectorAll('.hack-item').length > 1) {
+                        hackItem.remove();
+                        updateMenuPreview();
+                    } else {
+                        alert('You need at least one hack in your script!');
+                    }
+                }
+            });
+            
+            // Menu preview interaction
+            document.getElementById('menu-items').addEventListener('click', function(e) {
+                if (e.target.closest('.menu-item')) {
+                    const menuItem = e.target.closest('.menu-item');
+                    document.querySelectorAll('.menu-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    menuItem.classList.add('active');
+                }
+            });
+            
+            // Theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('light-theme');
+                const icon = themeToggle.querySelector('i');
+                if (document.body.classList.contains('light-theme')) {
+                    icon.className = 'fas fa-sun';
+                } else {
+                    icon.className = 'fas fa-moon';
+                }
+            });
+            
+            // Add initial hack
+            addHackItem();
+            
+            // Close modal button
+            document.getElementById('close-modal').addEventListener('click', closeSubscribeModal);
+            
+            // Close modal when clicking outside
+            document.getElementById('subscribe-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeSubscribeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
